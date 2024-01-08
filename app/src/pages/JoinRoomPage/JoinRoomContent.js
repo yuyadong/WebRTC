@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { setConnectionOnlyWithAudio } from "../../store/actions";
 import JoinRoomInputs from "./JoinRoomInputs";
 import JoinRoomButtons from "./JoinRoomButtons";
 import OnlyWithAudioCheckbox from "./OnlyWithAudioCheckbox";
 import ErrorMessage from "./ErrorMessage";
+import { getRoomExists } from '../../utils/api';
 
 const JoinRoomContent = ({
   isRoomHost,
@@ -13,6 +15,46 @@ const JoinRoomContent = ({
 }) => {
   const [roomIdValue, setRoomIdValue] = useState("");
   const [nameValue, setNameValue] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handleJoinRoom = () => {
+    if (isRoomHost) {
+      if (nameValue == '') {
+        setErrorMessage('请输入主持人姓名!')
+        return;
+      }
+      createRoom();
+    } else {
+      if (roomIdValue == '') {
+        setErrorMessage('请输入房间ID号!')
+        return;
+      }
+      if (nameValue == '') {
+        setErrorMessage('请输入主持人姓名!')
+        return;
+      }
+      joinRoom();
+    }
+  }
+
+  const joinRoom = async () => {
+    const responseMessage = await getRoomExists(roomIdValue);
+    const { rooExisits, full } = responseMessage;
+    if (rooExisits) {
+      if(full) {
+        setErrorMessage('会议房间人数已满，请稍后在重试!')
+      } else {
+        navigate('/room');
+      }
+    } else {
+      setErrorMessage('会议房间不存在，请验证你的ID是否正确!');
+    }
+  }
+
+  const createRoom = async () => {
+    navigate('/room');
+  }
 
   return (
     <>
@@ -27,8 +69,8 @@ const JoinRoomContent = ({
         connectionOnlyWithAudio={connectionOnlyWithAudio}
         setConnectionOnlyWithAudio={setConnectionOnlyWithAudio}
       />
-      <ErrorMessage errorMessage={`会议ID不正确！`} />
-      {/* <JoinRoomButtons buttonText={`取消`} onClickHandleer={() => return false} /> */}
+      <ErrorMessage errorMessage={errorMessage} />
+      <JoinRoomButtons isRoomHost={isRoomHost} handleJoinRoom={handleJoinRoom} />
     </>
   );
 };

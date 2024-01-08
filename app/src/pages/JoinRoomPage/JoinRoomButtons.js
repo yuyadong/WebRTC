@@ -1,9 +1,10 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom'
 
 const Button = ({ buttonText, cancelButton = false, onClickHandleer }) => (
   <button
     className={
-      cancelButton ? "join_room_cancle_button" : "join_room_success_button"
+      cancelButton ? "join_room_cancel_button" : "join_room_success_button"
     }
     onClick={onClickHandleer}
   >
@@ -11,14 +12,20 @@ const Button = ({ buttonText, cancelButton = false, onClickHandleer }) => (
   </button>
 );
 
-const JoinRoomButtons = ({ isRoomHost, onClickHandleer }) => {
-  const handleJoinRoom = () => {};
+const JoinRoomButtons = ({ isRoomHost, handleJoinRoom }) => {
+  const navigate = useNavigate()
+  const pushToIntroductionPage = () => navigate('/');
 
   return (
     <div className="join_room_buttons_container">
       <Button
         buttonText={isRoomHost ? "主持" : "加入"}
         onClickHandleer={handleJoinRoom}
+      />
+      <Button
+        buttonText={`取消`}
+        onClickHandleer={pushToIntroductionPage}
+        cancelButton
       />
     </div>
   );

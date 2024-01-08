@@ -30,7 +30,7 @@ const JoinRoomInputs = ({
       )}
       <Input
         placehilder={`请输入姓名...`}
-        value={roomIdValue}
+        value={nameValue}
         changeHandler={handleNameValueChange}
       />
     </div>
