@@ -9,13 +9,13 @@ import Overlay from "./Overlay";
 import "./index.css";
 
 const RoomPage = ({ isRoomHost, identity, roomId, showOverlay }) => {
-  useEffect(() => {}, [
+  useEffect(() => {
     webRTCHandler.getLocalPreviewAndInitRoomConnection(
       isRoomHost,
       identity,
       roomId
-    ),
-  ]);
+    );
+  }, []);
 
   return (
     <div className="room_container">

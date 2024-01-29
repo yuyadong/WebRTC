@@ -1,5 +1,6 @@
 import store from "../store";
 import { setShowOverlay } from "../store/actions";
+import { createNewRoom, joinRoom } from "../utils/wss";
 
 const defaultCopnstraints = {
   audio: true,
@@ -28,7 +29,7 @@ export const getLocalPreviewAndInitRoomConnection = (
       // 隐藏加载动画
       store.dispatch(setShowOverlay(false));
       // 初始化房间链接
-      isRoomHost ? wss.createNewRoom(identity) : wss.joinRoom(roomId, identity);
+      isRoomHost ? createNewRoom(identity) : joinRoom(roomId, identity);
     })
     .catch((error) => {
       console.log("无法获取本地媒体流！");

@@ -6,11 +6,18 @@ const initState = {
   connectionOnlyWithAudio: false,
   roomId: null,
   showOverlay: true,
+  participants: [],
 };
 
 const reducer = (state = initState, action) => {
-  const { isRoomHost, connectionOnlyWithAudio, roomId, identity, showOverlay } =
-    action;
+  const {
+    isRoomHost,
+    connectionOnlyWithAudio,
+    roomId,
+    identity,
+    showOverlay,
+    participants,
+  } = action;
   switch (action.type) {
     case Actions.SET_IS_ROOM_HOST:
       return {
@@ -36,6 +43,11 @@ const reducer = (state = initState, action) => {
       return {
         ...state,
         showOverlay,
+      };
+    case Actions.SET_PARTICIPANTS:
+      return {
+        ...state,
+        participants,
       };
     default:
       return state;
