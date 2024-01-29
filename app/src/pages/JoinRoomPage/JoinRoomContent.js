@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setConnectionOnlyWithAudio } from "../../store/actions";
+import { setConnectionOnlyWithAudio, setRoomId, setIdentity } from "../../store/actions";
 import JoinRoomInputs from "./JoinRoomInputs";
 import JoinRoomButtons from "./JoinRoomButtons";
 import OnlyWithAudioCheckbox from "./OnlyWithAudioCheckbox";
@@ -12,6 +12,8 @@ const JoinRoomContent = ({
   isRoomHost,
   connectionOnlyWithAudio,
   setConnectionOnlyWithAudio,
+  setRoomIdAction,
+  setIdentityAction
 }) => {
   const [roomIdValue, setRoomIdValue] = useState("");
   const [nameValue, setNameValue] = useState("");
@@ -19,6 +21,7 @@ const JoinRoomContent = ({
   const navigate = useNavigate();
 
   const handleJoinRoom = () => {
+    setIdentityAction(nameValue);
     if (isRoomHost) {
       if (nameValue == '') {
         setErrorMessage('请输入主持人姓名!')
@@ -45,6 +48,7 @@ const JoinRoomContent = ({
       if(full) {
         setErrorMessage('会议房间人数已满，请稍后在重试!')
       } else {
+        setRoomIdAction(roomIdValue);
         navigate('/room');
       }
     } else {
@@ -83,8 +87,9 @@ const mapStateToProps = (state) => {
 
 const mapActionsToProps = (dispatch) => {
   return {
-    setConnectionOnlyWithAudio: (connectionOnlyWithAudio) =>
-      dispatch(setConnectionOnlyWithAudio(connectionOnlyWithAudio)),
+    setConnectionOnlyWithAudio: (connectionOnlyWithAudio) => dispatch(setConnectionOnlyWithAudio(connectionOnlyWithAudio)),
+    setRoomIdAction: (roomId) => dispatch(setRoomId(roomId)),
+    setIdentityAction: (identity) => dispatch(setIdentity(identity)),
   };
 };
 
