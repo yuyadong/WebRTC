@@ -15,16 +15,16 @@ app.use(cors());
 const server = http.createServer(app);
 
 // 初始化房间和用户
-let connectedUsers = []
-let rooms = []
+let connectedUsers = [];
+let rooms = [];
 
 // 创建路由验证房间是否存在
-app.get('/api/room-exists/:roomId', (req,res) => {
+app.get("/api/room-exists/:roomId", (req, res) => {
   const { roomId } = req.params;
-  const room = rooms.find(room => room.id === roomId);
+  const room = rooms.find((room) => room.id === roomId);
   if (room) {
     // 房间存在
-    if (room.connectedUsers.length > 3 ) {
+    if (room.connectedUsers.length > 3) {
       // 房间人数已满
       return res.send({ roomExisits: true, full: true });
     } else {
@@ -35,13 +35,17 @@ app.get('/api/room-exists/:roomId', (req,res) => {
     // 房间不存在
     return res.send({ roomExisits: false });
   }
-})
+});
 
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
   },
+});
+
+io.on("connection", (socket) => {
+  console.log(`用户已实现sockte连接${socket.id}`);
 });
 
 //监听端口号
