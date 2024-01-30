@@ -55,6 +55,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     disconnectHandler(socket);
   });
+  socket.on("conn-signal", (data) => {
+    signalingHandler(data, socket);
+  });
+  socket.on("conn-init", (data) => {
+    initailizeConnectionHandler(data, socket);
+  });
 });
 
 // socket.io handler
@@ -100,10 +106,25 @@ const joinRoomHandler = (data, socket) => {
   // 判断传递过来的 roomId 是否匹配对应会议房间
   const room = rooms.find((room) => room.id === roomId);
   room.connectedUsers = [...room.connectedUsers, newUser];
+
   // 加入房间
   socket.join(roomId);
+
   // 将新用户添加到已连接的用户数组里面
   connectedUsers = [...connectedUsers, newUser];
+
+  // 告知除自己意外其他已连接用户准备 webRTC 链接
+  room.connectedUsers.forEach((user) => {
+    // 排除自身
+    if (user.socketId !== socket.id) {
+      //存储发起对等连接方的socketId信息
+      const data = {
+        connUserSocketId: socket.id,
+      };
+      io.to(user.socketId).emit("conn-prepare", data);
+    }
+  });
+
   // 发送通知告知有新用户加入并更新房间
   io.to(roomId).emit("room-update", { connectedUsers: room.connectedUsers });
 };
@@ -111,16 +132,24 @@ const joinRoomHandler = (data, socket) => {
 const disconnectHandler = (socket) => {
   // 查询要离开会议房间的用户
   const user = connectedUsers.find((user) => user.socketId === socket.id);
+
   if (user) {
     // 从会议房间中进行删除
-    const room = room.find((room) => room.id === user.id);
-    room.connectedUsers = room.connectedUsers.fliter(
+    const room = rooms.find((room) => room.id === user.roomId);
+
+    room.connectedUsers = room.connectedUsers.filter(
       (user) => user.socketId !== socket.id
     );
+
     // 离开房间
     socket.leave(user.roomId);
+
     // 当会议房间没人员的时候要关闭会议室
     if (room.connectedUsers.length > 0) {
+      // 用户断开 webRTC 连接
+      io.to(room.id).emit("user-disconected", { socketId: socket.id });
+
+      // 发送通知告知有用户离开并更新房间
       io.to(room.id).emit("room-update", {
         connectedUsers: room.connectedUsers,
       });
@@ -128,6 +157,18 @@ const disconnectHandler = (socket) => {
       rooms = rooms.filter((r) => r.id !== room.id);
     }
   }
+};
+
+// 交换信令数据
+const signalingHandler = ({ connUserSocketId, signal }, socket) => {
+  const signalingData = { signal, connUserSocketId: socket.id };
+  io.to(connUserSocketId).emit("conn-signal", signalingData);
+};
+
+// 初始化对等连接
+const initailizeConnectionHandler = ({ connUserSocketId }, socket) => {
+  const initData = { connUserSocketId: socket.id };
+  io.to(connUserSocketId).emit("conn-init", initData);
 };
 
 //监听端口号
