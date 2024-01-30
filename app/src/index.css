@@ -23,6 +23,10 @@ code {
   flex-wrap: wrap;
 }
 
+.video_trank_container {
+  width: 50%;
+}
+
 #dummy_video_canvas {
   display: none;
 }
