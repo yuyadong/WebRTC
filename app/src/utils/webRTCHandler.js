@@ -158,3 +158,12 @@ const addStream = (stream, connUserSocketId) => {
   videoContainer.appendChild(videoElement);
   videosContainer.appendChild(videoContainer);
 };
+
+//////////////////////////// Button Logic ////////////////////////////
+export const toggleMic = (isMuted) => {
+  localSteam.getAudioTracks()[0].enabled = isMuted;
+};
+
+export const toggleCamera = (isDisabled) => {
+  localSteam.getVideoTracks()[0].enabled = isDisabled;
+};
